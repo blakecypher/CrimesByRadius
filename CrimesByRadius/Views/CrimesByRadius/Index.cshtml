@@ -1,0 +1,46 @@
+﻿@model CrimeRadius.Model.CrimeData
+@{
+    ViewData["Title"] = "Crime Data";
+}
+
+<h1>Crime Data</h1>
+
+@using (Html.BeginForm("GetCrimeData", "CrimesByRadius", FormMethod.Post, new {id = "crimeForm`"}))
+{
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude" autocomplete="true" name="latitude" value="51.44237" required>
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude" autocomplete="true" name="longitude" value="-2.49810" required>
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date" required>
+    <button type="submit">Get Crime Data</button>
+}
+
+<div id="crimeResult"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#crimeForm').submit(function (event) {
+                event.preventDefault();
+                let latitude = $('#latitude').val();
+                let longitude = $('#longitude').val();
+                getCrimeData(latitude, longitude);
+            });
+
+            function getCrimeData(latitude, longitude) {
+                $.ajax({
+                    url: '/CrimesByRadius/GetCrimeData',
+                    method: 'POST',
+                    data: { latitude: latitude, longitude: longitude },
+                    success: function (data) {
+                        $('#crimeResult').html(JSON.stringify(data));
+                    },
+                    error: function () {
+                        $('#crimeResult').html('Error fetching crime data.');
+                    }
+                });
+            }
+        });
+    </script>
+}

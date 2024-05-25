@@ -1,0 +1,144 @@
+﻿@model System.Collections.Generic.IEnumerable<CrimeRadius.Model.CrimeData>
+
+@{
+    ViewBag.Title = "Results";
+    Layout = "_Layout";
+}
+<html lang="en">
+<head>
+    <title>JSON Results</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css"/>
+        <style>
+        /* Additional CSS for table */
+        .table th, .table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1 class="mt-4">Results</h1>
+    <b>Month:</b>
+    @{
+        if (!Model.Any())
+        {
+            <span>No Data</span>
+            <button onclick="history.back()">Go Back</button>
+        }
+        else
+        {
+            @Model.First().month
+        }
+    }
+    @foreach (var group in Model.GroupBy(x => new { x.location.latitude, x.location.longitude, x.month, x.category }))
+    {
+        <br/>
+        <span><b>Latitude:</b> @group.Key.latitude, <b>Longitude:</b> @group.Key.longitude, </span>
+        <span>
+            <b>Category:</b> @group.Key.category
+        </span>
+        <br/>
+        <span class="badge badge-secondary">@group.Select(x => x.category).Count() Crimes</span>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Category</th>
+                    <th style="width: 10%">Location Type</th>
+                    <th style="width: 10%">Latitude</th>
+                    <th style="width: 10%">Longitude</th>
+                    <th style="width: 10%">Street ID</th>
+                    <th style="width: 10%">Street Name</th>
+                    <th style="width: 10%">Outcome Status</th>
+                    <th style="width: 10%">Category</th>
+                    <th style="width: 10%">Date</th>
+                    <th style="width: 10%">Persistent ID</th>
+                    <th style="width: 10%">ID</th>
+                    <th style="width: 10%">Location Subtype</th>
+                    <th style="width: 10%">Month</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in group)
+                {
+                    <tr>
+                        <td>@item.category</td>
+                        <td>@item.location_type</td>
+                        <td>@item.location.latitude</td>
+                        <td>@item.location.longitude</td>
+                        <td>@item.location.street.id</td>
+                        <td>@item.location.street.name</td>
+                        @if (item.outcome_status == null)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td>Outcome Status: </td>
+                        }
+                        @if (item.outcome_status != null)
+                        {
+                            <td>@item.outcome_status.category</td>
+                            <td>@item.outcome_status.date</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                            <td></td>
+                        }
+                        <td>@item.persistent_id</td>
+                        <td>@item.id</td>
+                        <td>@item.location_subtype</td>
+                        <td>@item.month</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+        </div>
+    }
+    <nav aria-label="Page navigation">
+        <ul id="pagination" class="pagination justify-content-center">
+        </ul>
+    </nav>
+</div>
+
+<!-- Include Bootstrap JS (optional) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+        $(document).ready(function () {
+            // Initialize pagination
+            const pageSize = 10;
+            let pageCount = Math.ceil(@Model.Count() / pageSize);
+            for (let i = 1; i <= pageCount; i++) {
+                $('#pagination').append('<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>');
+            }
+
+            // Show first page initially
+            showPage(1);
+
+            // Handle page click event
+            $("#pagination").on('click', '.page-link', function (e) {
+                e.preventDefault();
+                let page = $(this).data('page');
+                showPage(page);
+            });
+
+            // Function to show a specific page
+            function showPage(page) {
+                let startIndex = (page - 1) * pageSize;
+                let endIndex = Math.min(startIndex + pageSize, @Model.Count();
+                $("#data-table tbody tr").hide();
+                for (let i = startIndex; i < endIndex; i++) {
+                    $('#data-table tbody tr').eq(i).show();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
